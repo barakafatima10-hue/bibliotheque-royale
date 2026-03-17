@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Bibliothèque Royale</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=Cinzel:wght@400;600;900&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#07070d;
+  --surface:#0f0f18;
+  --border:#252535;
+  --gold:#c9a84c;
+  --gold2:#e8c87a;
+  --gold3:#a07828;
+  --text:#e8e0d0;
+  --muted:#6a6055;
+  --muted2:#9a9080;
+  --fantasy-c:#c0a0ff;
+  --horror-c:#ff9090;
+  --romance-c:#ffb0c0;
+  --poetry-c:#90c8ff;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:'Cormorant Garamond',Georgia,serif;
+  min-height:100vh;overflow-x:hidden;
+}
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 70% 50% at 15% 15%,rgba(201,168,76,.07) 0%,transparent 60%),
+    radial-gradient(ellipse 50% 40% at 85% 85%,rgba(155,35,53,.08) 0%,transparent 60%),
+    radial-gradient(ellipse 40% 30% at 50% 50%,rgba(74,32,128,.05) 0%,transparent 70%);
+}
+
+/* ── STEPS ── */
+.step{display:none;min-height:100vh;flex-direction:column;position:relative;z-index:1;}
+.step.active{display:flex;animation:pgIn .55s cubic-bezier(.22,1,.36,1) both;}
+@keyframes pgIn{from{opacity:0;transform:translateY(28px);}to{opacity:1;transform:none;}}
+
+/* ── HEADER ── */
+.site-header{text-align:center;padding:2.8rem 1rem 1.4rem;position:relative;}
+.site-header::after{
+  content:'';display:block;width:100px;height:1px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+  margin:.9rem auto 0;
+}
+.logo{
+  font-family:'Cinzel',serif;font-size:clamp(1.5rem,5vw,2.6rem);
+  font-weight:900;letter-spacing:.22em;text-transform:uppercase;
+  background:linear-gradient(135deg,var(--gold2) 0%,var(--gold) 50%,var(--gold3) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.logo-tagline{font-style:italic;font-size:.92rem;color:var(--muted2);letter-spacing:.3em;margin-top:.3rem;}
+
+/* ── DOTS ── */
+.dots{display:flex;justify-content:center;gap:.6rem;padding:.8rem;}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--border);transition:all .4s;}
+.dot.done{background:var(--gold);}
+.dot.now{background:var(--gold2);box-shadow:0 0 10px var(--gold);transform:scale(1.5);}
+
+/* ══════════════════════ STEP 1 — FORM ══════════════════════ */
+.form-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:1.5rem 1.5rem 4rem;}
+.card{
+  width:100%;max-width:500px;background:var(--surface);
+  border:1px solid var(--border);padding:3rem 2.8rem;position:relative;
+  box-shadow:0 40px 100px rgba(0,0,0,.65),inset 0 1px 0 rgba(201,168,76,.12);
+}
+.card::before,.card::after{content:'◆';position:absolute;font-size:.55rem;color:var(--gold);opacity:.5;}
+.card::before{top:.9rem;left:.9rem;}
+.card::after{bottom:.9rem;right:.9rem;}
+.card-title{font-family:'Playfair Display',serif;font-size:clamp(1.4rem,4vw,1.9rem);font-weight:400;text-align:center;color:var(--gold2);margin-bottom:.3rem;}
+.card-sub{text-align:center;font-style:italic;color:var(--muted2);font-size:.93rem;margin-bottom:2.4rem;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;}
+@media(max-width:460px){.row2{grid-template-columns:1fr;}}
+.field{display:flex;flex-direction:column;gap:.35rem;margin-bottom:1.3rem;}
+.field label{font-family:'Cinzel',serif;font-size:.62rem;letter-spacing:.22em;color:var(--gold);text-transform:uppercase;}
+.field input{
+  background:var(--bg);border:1px solid var(--border);
+  padding:.82rem 1rem;color:var(--text);
+  font-family:'Cormorant Garamond',serif;font-size:1rem;
+  outline:none;transition:border-color .3s,box-shadow .3s;
+}
+.field input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,.13),0 2px 12px rgba(201,168,76,.07);}
+.field input::placeholder{color:var(--muted);font-style:italic;}
+.field input.err-input{border-color:#c04040;}
+.err-txt{color:#e06060;font-size:.78rem;display:none;}
+.show-err .err-txt{display:block;}
+
+/* ── BUTTONS ── */
+.btn-gold{
+  width:100%;padding:1rem;
+  background:linear-gradient(135deg,var(--gold3),var(--gold),var(--gold2));
+  border:none;color:#08080f;
+  font-family:'Cinzel',serif;font-size:.78rem;letter-spacing:.25em;text-transform:uppercase;
+  cursor:pointer;position:relative;overflow:hidden;
+  transition:transform .2s,box-shadow .3s;margin-top:.4rem;
+}
+.btn-gold::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.18),transparent);opacity:0;transition:opacity .3s;}
+.btn-gold:hover{transform:translateY(-2px);box-shadow:0 14px 40px rgba(201,168,76,.38);}
+.btn-gold:hover::after{opacity:1;}
+.btn-gold:active{transform:none;}
+.btn-outline{
+  background:transparent;border:1px solid var(--border);
+  color:var(--muted2);font-family:'Cinzel',serif;font-size:.68rem;
+  letter-spacing:.2em;text-transform:uppercase;
+  padding:.65rem 1.8rem;cursor:pointer;transition:border-color .3s,color .3s;
+}
+.btn-outline:hover{border-color:var(--gold);color:var(--gold);}
+
+/* ══════════════════════ STEP 2 — GENRES ══════════════════════ */
+.genre-wrap{flex:1;padding:1.2rem 2rem 4rem;max-width:1080px;margin:0 auto;width:100%;}
+.sec-title{font-family:'Playfair Display',serif;font-size:clamp(1.3rem,4vw,2rem);font-weight:400;text-align:center;color:var(--gold2);margin-bottom:.35rem;}
+.sec-sub{text-align:center;font-style:italic;color:var(--muted2);margin-bottom:2.2rem;}
+.genres-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:1.4rem;margin-bottom:2.4rem;}
+@media(max-width:500px){.genres-grid{grid-template-columns:1fr 1fr;gap:.9rem;}}
+.genre-card{
+  background:var(--surface);border:2px solid var(--border);overflow:hidden;cursor:pointer;
+  transition:transform .3s,border-color .3s,box-shadow .3s;position:relative;
+  -webkit-user-select:none;user-select:none;
+}
+.genre-card:hover{transform:translateY(-4px);box-shadow:0 24px 60px rgba(0,0,0,.5);}
+.genre-card.sel{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 20px 55px rgba(201,168,76,.22);}
+.genre-card.sel .gcheck{opacity:1;transform:scale(1);}
+.gcov{height:190px;position:relative;overflow:hidden;}
+.gcov img{width:100%;height:100%;object-fit:cover;filter:brightness(.7) saturate(1.2);transition:transform .5s,filter .3s;}
+.genre-card:hover .gcov img{transform:scale(1.07);filter:brightness(.85) saturate(1.3);}
+.gcov-overlay{position:absolute;inset:0;background:linear-gradient(to top,var(--surface) 0%,transparent 55%);}
+.gcheck{
+  position:absolute;top:.7rem;right:.7rem;width:30px;height:30px;border-radius:50%;
+  background:var(--gold);color:#08080f;display:flex;align-items:center;justify-content:center;
+  font-size:.9rem;z-index:2;opacity:0;transform:scale(.5);transition:opacity .3s,transform .3s;
+}
+.gbody{padding:1rem 1.1rem 1.2rem;}
+.gname{font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:700;margin-bottom:.25rem;}
+.gdesc{color:var(--muted2);font-style:italic;font-size:.83rem;line-height:1.5;}
+.genre-card[data-g="fantaziya"] .gname{color:var(--fantasy-c);}
+.genre-card[data-g="ro3b"]      .gname{color:var(--horror-c);}
+.genre-card[data-g="romansiya"] .gname{color:var(--romance-c);}
+.genre-card[data-g="chi3r"]     .gname{color:var(--poetry-c);}
+.genre-err{text-align:center;color:#e06060;font-style:italic;font-size:.9rem;margin-bottom:1rem;display:none;}
+.genre-btns{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;}
+
+/* ══════════════════════ STEP 3 — LIBRARY ══════════════════════ */
+.lib-wrap{flex:1;padding:1.2rem 2rem 5rem;max-width:1200px;margin:0 auto;width:100%;}
+.welcome-line{text-align:center;color:var(--gold);font-style:italic;font-size:.95rem;margin-bottom:.4rem;}
+.search-bar{max-width:540px;margin:0 auto 2rem;position:relative;}
+.search-bar svg{position:absolute;left:1.1rem;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--muted);width:18px;height:18px;}
+#searchInput{
+  width:100%;background:var(--surface);border:1px solid var(--border);border-radius:50px;
+  padding:.82rem 1.2rem .82rem 2.9rem;color:var(--text);
+  font-family:'Cormorant Garamond',serif;font-size:1rem;
+  outline:none;transition:border-color .3s,box-shadow .3s;
+}
+#searchInput:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,.13);}
+#searchInput::placeholder{color:var(--muted);font-style:italic;}
+.tabs{display:flex;flex-wrap:wrap;gap:.55rem;justify-content:center;margin-bottom:2.2rem;}
+.tab{
+  background:transparent;border:1px solid var(--border);color:var(--muted2);
+  font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;
+  padding:.45rem 1.1rem;cursor:pointer;border-radius:50px;transition:all .25s;
+}
+.tab:hover,.tab.on{border-color:var(--gold);color:var(--gold);background:rgba(201,168,76,.07);}
+.books-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:1.8rem;}
+@media(max-width:480px){.books-grid{grid-template-columns:repeat(2,1fr);gap:1rem;}}
+.bcard{
+  background:var(--surface);border:1px solid var(--border);overflow:hidden;cursor:pointer;
+  transition:transform .35s,box-shadow .35s,border-color .3s;position:relative;
+}
+.bcard:hover{transform:translateY(-7px) rotate(.4deg);box-shadow:0 28px 70px rgba(0,0,0,.65);border-color:var(--gold);}
+.bcover{height:255px;position:relative;overflow:hidden;}
+.bcover img{width:100%;height:100%;object-fit:cover;filter:brightness(.8) saturate(1.1);transition:transform .5s,filter .3s;}
+.bcard:hover .bcover img{transform:scale(1.06);filter:brightness(.95) saturate(1.3);}
+.bcover-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(7,7,13,.97) 0%,rgba(7,7,13,.25) 55%,transparent 100%);}
+.bbadge{position:absolute;top:.6rem;left:.6rem;padding:.18rem .55rem;font-family:'Cinzel',serif;font-size:.52rem;letter-spacing:.14em;text-transform:uppercase;border-radius:50px;z-index:2;}
+.bbadge-fantaziya{background:rgba(74,32,128,.82);color:#c8a8ff;border:1px solid #8060b0;}
+.bbadge-ro3b     {background:rgba(139,0,0,.82);  color:#ffb0b0;border:1px solid #c04040;}
+.bbadge-romansiya{background:rgba(139,48,80,.82);color:#ffc0d0;border:1px solid #c07090;}
+.bbadge-chi3r    {background:rgba(26,74,107,.82);color:#a8d8ff;border:1px solid #4080b0;}
+.bactions{
+  position:absolute;bottom:0;left:0;right:0;padding:.7rem .8rem;display:flex;gap:.5rem;
+  transform:translateY(110%);opacity:0;transition:transform .3s,opacity .3s;z-index:3;
+}
+.bcard:hover .bactions{transform:none;opacity:1;}
+.btn-read,.btn-dl{flex:1;padding:.45rem .2rem;font-family:'Cinzel',serif;font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:transform .15s;border:none;}
+.btn-read:hover,.btn-dl:hover{transform:translateY(-2px);}
+.btn-read{background:var(--gold);color:#07070d;}
+.btn-dl{background:transparent;border:1px solid var(--gold);color:var(--gold);}
+.btn-dl:hover{background:rgba(201,168,76,.1);}
+.bbody{padding:.9rem 1rem 1.1rem;}
+.btitle{font-family:'Playfair Display',serif;font-size:.98rem;font-weight:700;line-height:1.3;margin-bottom:.25rem;}
+.bauthor{color:var(--gold);font-style:italic;font-size:.83rem;}
+.no-results{text-align:center;padding:3.5rem 2rem;color:var(--muted2);font-style:italic;font-size:1.05rem;grid-column:1/-1;}
+
+/* ══════════════════════ MODAL ══════════════════════ */
+.modal-bg{display:none;position:fixed;inset:0;z-index:999;background:rgba(4,4,9,.92);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:1rem;}
+.modal-bg.open{display:flex;animation:mfade .3s ease;}
+@keyframes mfade{from{opacity:0;}to{opacity:1;}}
+.modal{
+  background:var(--surface);border:1px solid var(--border);max-width:660px;width:100%;
+  max-height:88vh;display:flex;flex-direction:column;
+  box-shadow:0 60px 130px rgba(0,0,0,.85);overflow:hidden;
+  animation:mslide .35s cubic-bezier(.22,1,.36,1) both;
+}
+@keyframes mslide{from{transform:translateY(30px);opacity:0;}to{transform:none;opacity:1;}}
+.modal-head{padding:1.8rem 2rem 1.2rem;border-bottom:1px solid var(--border);position:relative;}
+.modal-x{position:absolute;top:1rem;right:1rem;background:none;border:none;color:var(--muted2);font-size:1.3rem;cursor:pointer;line-height:1;transition:color .2s;}
+.modal-x:hover{color:var(--gold);}
+.modal-title{font-family:'Playfair Display',serif;font-size:1.45rem;color:var(--gold2);margin-bottom:.2rem;margin-right:2rem;}
+.modal-author{color:var(--muted2);font-style:italic;font-size:.92rem;}
+.modal-body{padding:1.6rem 2rem 2rem;overflow-y:auto;flex:1;font-size:1.05rem;line-height:1.92;color:var(--text);}
+.modal-body p{margin-bottom:1rem;}
+.modal-body p:first-child::first-letter{font-family:'Playfair Display',serif;font-size:3.6rem;font-weight:700;float:left;line-height:.8;margin:.05em .14em 0 0;color:var(--gold);}
+.modal-foot{padding:.9rem 2rem;border-top:1px solid var(--border);display:flex;gap:1rem;justify-content:flex-end;align-items:center;}
+.btn-dl-modal{background:linear-gradient(135deg,var(--gold3),var(--gold));border:none;color:#07070d;font-family:'Cinzel',serif;font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;padding:.65rem 1.8rem;cursor:pointer;transition:box-shadow .2s,transform .2s;}
+.btn-dl-modal:hover{box-shadow:0 10px 28px rgba(201,168,76,.38);transform:translateY(-2px);}
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+::-webkit-scrollbar-thumb:hover{background:var(--gold);}
+
+@media(max-width:580px){
+  .card{padding:2rem 1.4rem;}
+  .genre-wrap,.lib-wrap{padding:1rem 1rem 3rem;}
+  .modal-head,.modal-body{padding:1.2rem;}
+  .modal-foot{padding:.8rem 1.2rem;}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════ STEP 1 — FORMULAIRE ══════ -->
+<div class="step active" id="s1">
+  <header class="site-header">
+    <div class="logo">Bibliothèque Royale</div>
+    <div class="logo-tagline">Une odyssée au cœur des mots</div>
+  </header>
+  <div class="dots">
+    <div class="dot now"></div><div class="dot"></div><div class="dot"></div>
+  </div>
+  <div class="form-wrap">
+    <div class="card">
+      <h2 class="card-title">Bienvenue, Lecteur</h2>
+      <p class="card-sub">Inscrivez-vous pour accéder à la bibliothèque</p>
+      <div class="row2">
+        <div class="field" id="f-nom">
+          <label for="nom">Nom</label>
+          <input type="text" id="nom" placeholder="Votre nom"/>
+          <span class="err-txt">Champ obligatoire</span>
+        </div>
+        <div class="field" id="f-prenom">
+          <label for="prenom">Prénom</label>
+          <input type="text" id="prenom" placeholder="Votre prénom"/>
+          <span class="err-txt">Champ obligatoire</span>
+        </div>
+      </div>
+      <div class="field" id="f-email">
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="exemple@domaine.com"/>
+        <span class="err-txt">Email invalide</span>
+      </div>
+      <div class="field" id="f-phone">
+        <label for="phone">Téléphone</label>
+        <input type="tel" id="phone" placeholder="+212 6XX XXX XXX"/>
+        <span class="err-txt">Numéro invalide (min. 8 chiffres)</span>
+      </div>
+      <button class="btn-gold" onclick="submitS1()">Continuer → Choisir mes genres</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ STEP 2 — GENRES ══════ -->
+<div class="step" id="s2">
+  <header class="site-header">
+    <div class="logo">Bibliothèque Royale</div>
+    <div class="logo-tagline">Une odyssée au cœur des mots</div>
+  </header>
+  <div class="dots">
+    <div class="dot done"></div><div class="dot now"></div><div class="dot"></div>
+  </div>
+  <div class="genre-wrap">
+    <h2 class="sec-title">Quels genres vous font rêver ?</h2>
+    <p class="sec-sub">Sélectionnez un ou plusieurs genres — cliquez pour choisir</p>
+    <div class="genres-grid">
+
+      <div class="genre-card" data-g="fantaziya" onclick="toggleG(this)">
+        <div class="gcov">
+          <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=400&q=80" alt="Fantaisie" loading="lazy"/>
+          <div class="gcov-overlay"></div>
+          <div class="gcheck">✓</div>
+        </div>
+        <div class="gbody">
+          <div class="gname">✦ Fantaisie</div>
+          <div class="gdesc">Mondes enchantés, magie et épopées sans limites.</div>
+        </div>
+      </div>
+
+      <div class="genre-card" data-g="ro3b" onclick="toggleG(this)">
+        <div class="gcov">
+          <img src="https://images.unsplash.com/photo-1509248961158-e54f6934749c?w=400&q=80" alt="Horreur" loading="lazy"/>
+          <div class="gcov-overlay"></div>
+          <div class="gcheck">✓</div>
+        </div>
+        <div class="gbody">
+          <div class="gname">☽ Horreur</div>
+          <div class="gdesc">Ténèbres et terreur qui glacent le sang la nuit.</div>
+        </div>
+      </div>
+
+      <div class="genre-card" data-g="romansiya" onclick="toggleG(this)">
+        <div class="gcov">
+          <img src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&q=80" alt="Romance" loading="lazy"/>
+          <div class="gcov-overlay"></div>
+          <div class="gcheck">✓</div>
+        </div>
+        <div class="gbody">
+          <div class="gname">♥ Romance</div>
+          <div class="gdesc">Passions ardentes et destins entrelacés à jamais.</div>
+        </div>
+      </div>
+
+      <div class="genre-card" data-g="chi3r" onclick="toggleG(this)">
+        <div class="gcov">
+          <img src="https://images.unsplash.com/photo-1455390582262-044cdead277a?w=400&q=80" alt="Poésie" loading="lazy"/>
+          <div class="gcov-overlay"></div>
+          <div class="gcheck">✓</div>
+        </div>
+        <div class="gbody">
+          <div class="gname">✿ Poésie</div>
+          <div class="gdesc">Vers ciselés et émotions distillées en mots immortels.</div>
+        </div>
+      </div>
+
+    </div>
+    <p class="genre-err" id="genreErr">⚠ Veuillez sélectionner au moins un genre.</p>
+    <div class="genre-btns">
+      <button class="btn-outline" onclick="go(1)">← Retour</button>
+      <button class="btn-gold" style="width:auto;padding:.9rem 2.4rem;" onclick="submitS2()">
+        Découvrir ma bibliothèque →
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ STEP 3 — BIBLIOTHÈQUE ══════ -->
+<div class="step" id="s3">
+  <header class="site-header">
+    <div class="logo">Bibliothèque Royale</div>
+    <div class="logo-tagline">Une odyssée au cœur des mots</div>
+  </header>
+  <div class="dots">
+    <div class="dot done"></div><div class="dot done"></div><div class="dot now"></div>
+  </div>
+  <div class="lib-wrap">
+    <div style="text-align:center;margin-bottom:1.5rem;">
+      <p class="welcome-line" id="welcomeMsg"></p>
+      <h2 class="sec-title">Votre Bibliothèque</h2>
+      <p class="sec-sub">Explorez, lisez et téléchargez vos œuvres préférées</p>
+    </div>
+    <div class="search-bar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input type="text" id="searchInput" placeholder="Rechercher par titre ou auteur…" oninput="filterBooks()"/>
+    </div>
+    <div class="tabs" id="tabsEl"></div>
+    <div class="books-grid" id="booksGrid"></div>
+    <div style="text-align:center;margin-top:2rem;">
+      <button class="btn-outline" onclick="go(2)">← Modifier mes genres</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ MODAL LECTURE ══════ -->
+<div class="modal-bg" id="modalBg" onclick="bgClose(event)">
+  <div class="modal">
+    <div class="modal-head">
+      <button class="modal-x" onclick="closeModal()">✕</button>
+      <div class="modal-title" id="mTitle"></div>
+      <div class="modal-author" id="mAuthor"></div>
+    </div>
+    <div class="modal-body" id="mBody"></div>
+    <div class="modal-foot">
+      <button class="btn-outline" onclick="closeModal()">Fermer</button>
+      <button class="btn-dl-modal" id="mDlBtn">⬇ Télécharger</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── DATA ── */
+const BOOKS = [
+  {id:1,genre:"fantaziya",title:"Le Seigneur des Anneaux",author:"J.R.R. Tolkien",
+   img:"https://images.unsplash.com/photo-1535666669445-e8c15cd2e7d9?w=400&q=80",
+   text:`La Terre du Milieu s'étendait devant Frodon comme un rêve éveillé. La Comté, avec ses collines douces et ses champs d'or, semblait si lointaine maintenant que les ombres de Mordor s'allongeaient sur les plaines.
+
+Il serra l'Anneau dans sa paume — cette chose minuscule, si légère, si terriblement lourde de destin. Gandalf lui avait dit un jour que les petits actes de courage comptaient plus que les grandes batailles des rois et des guerriers.
+
+Autour de lui, ses compagnons marchaient en silence : Sam, fidèle comme le soleil levant ; Aragorn, portant la dignité des anciens rois dans chaque pas ; Legolas, dont les yeux perçants lisaient le vent comme une partition.
+
+"Allons-y," dit Frodon simplement. Et la Fraternité s'ébranla vers l'Est, vers le feu, vers la gloire ou l'oubli éternel.`},
+
+  {id:2,genre:"fantaziya",title:"Harry Potter et la Pierre Philosophale",author:"J.K. Rowling",
+   img:"https://images.unsplash.com/photo-1551269901-5c5e14c25df7?w=400&q=80",
+   text:`La lettre était là, blanc crème sur la table de cuisine — adressée à l'encre verte : M. H. Potter, Le Placard sous l'Escalier, 4 Privet Drive, Little Whinging, Surrey.
+
+Harry la retourna entre ses doigts tremblants. En onze ans, personne ne lui avait jamais écrit. Pas une seule fois.
+
+Mais cette lettre — avec son sceau de cire pourpre, l'armoirie d'un blaireau, d'un lion, d'un aigle et d'un serpent entourant un grand H — lui semblait appartenir à un autre monde.
+
+Un monde qui l'attendait depuis toujours, qui avait gardé son nom dans ses mythes depuis la nuit où il avait survécu à l'impossible.
+
+Il brisa le sceau. Et tout changea.`},
+
+  {id:3,genre:"fantaziya",title:"Le Nom du Vent",author:"Patrick Rothfuss",
+   img:"https://images.unsplash.com/photo-1520209759809-a9bcb6cb3241?w=400&q=80",
+   text:`Mon nom est Kvothe. J'ai été appelé Kvothe le Sans-Sang dans les cercles de magie, Kvothe le Tueur de Rois dans les ballades des bardes errantes.
+
+Ces noms me suivent comme des ombres fidèles. Mais ce soir, dans cette auberge silencieuse, je suis simplement un homme avec une histoire à raconter — et trois jours pour la raconter correctement.
+
+L'Histoire de ma vie commence, comme toutes les histoires qui valent la peine d'être entendues, par un feu crépitant, une nuit sans lune, et une question posée par un chroniqueur patient.
+
+Voici la vérité. Je suis Kvothe. Et voici comment tout a commencé.`},
+
+  {id:4,genre:"ro3b",title:"Shining",author:"Stephen King",
+   img:"https://images.unsplash.com/photo-1609743522653-52354461eb27?w=400&q=80",
+   text:`L'hôtel Overlook était silencieux comme une tombe ce soir-là — et Jack Torrance avait appris depuis des semaines que ce silence ne signifiait pas l'absence. Il signifiait l'attente.
+
+Danny ne dormait plus depuis trois jours. Son index — Tony, comme il l'appelait — avait recommencé à parler. Des mots écrits dans des miroirs embrumés et sur des murs de couloir vides.
+
+REDRUM. REDRUM. REDRUM.
+
+Jack prit la hache dans le placard de la cuisine. Dehors, la neige tombait sans fin sur les montagnes du Colorado, ensevelissant toute trace de sortie possible.
+
+L'hôtel avait attendu longtemps. Cette nuit, il allait enfin se nourrir.`},
+
+  {id:5,genre:"ro3b",title:"Frankenstein",author:"Mary Shelley",
+   img:"https://images.unsplash.com/photo-1635236034550-3fb35c59ac59?w=400&q=80",
+   text:`C'était une nuit de novembre sombre et tempétueuse lorsque je vis le résultat de mes travaux. La bougie était presque consumée. À deux heures du matin, la pluie martelait les vitres.
+
+La créature gisait devant moi, assemblée de fragments humains dérobés dans les charniers et les salles de dissection. Et soudain, ses yeux — jaunes et ternes comme de l'eau trouble — s'ouvrirent.
+
+Elle respirait. Elle vivait.
+
+Je n'eus qu'une seule pensée, celle qui détruirait le reste de ma vie : j'avais joué à être Dieu. Et Dieu ne pardonne jamais ce crime-là.`},
+
+  {id:6,genre:"ro3b",title:"Dracula",author:"Bram Stoker",
+   img:"https://images.unsplash.com/photo-1574701148212-8518db33b37f?w=400&q=80",
+   text:`Journal de Jonathan Harker — 3 mai, Bistritz. Quitté Munich le premier mai, arrivé à Vienne le lendemain matin. Buda ressemblait à quelque chose de féerique dans la lumière matinale.
+
+Mais c'est ce château — perché sur ces falaises de Transylvanie, accessible seulement par des chemins que les loups connaissent — qui hante déjà mes rêves.
+
+Mon hôte, le comte Dracula, m'attendait dans le grand hall. Sa poignée de main était froide comme le marbre. Ses yeux, rouges comme des braises dans la nuit, me fixaient avec une intensité que je n'avais jamais vue dans aucun regard humain.
+
+"Bienvenue dans ma maison," dit-il. Je compris trop tard que c'était un piège.`},
+
+  {id:7,genre:"romansiya",title:"Orgueil et Préjugés",author:"Jane Austen",
+   img:"https://images.unsplash.com/photo-1476275466078-4cdc3a5fc40a?w=400&q=80",
+   text:`C'est une vérité universellement reconnue qu'un homme célibataire et pourvu d'une belle fortune doit avoir envie de se marier.
+
+Elizabeth Bennet, deuxième des cinq filles de Mr Bennet, n'était pas du tout de cet avis. Elle avait des yeux vifs, une intelligence mordante, et une impatience naturelle pour ce qu'elle appelait l'absurdité organisée de la société.
+
+M. Darcy entra dans le bal. Grand, beau, noble — et arrogant jusqu'à la moelle des os. Il la regarda trois secondes, puis dit à son ami Bingley, assez fort pour être entendu : "Elle est supportable, mais pas assez belle pour me tenter."
+
+Et c'est ainsi que commença la plus grande histoire d'amour de la littérature anglaise.`},
+
+  {id:8,genre:"romansiya",title:"Jane Eyre",author:"Charlotte Brontë",
+   img:"https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400&q=80",
+   text:`Il n'y avait aucune possibilité de faire une promenade ce jour-là. Le vent froid d'hiver avait amené des nuages si sombres et une pluie si pénétrante que toute excursion extérieure était désormais hors de question.
+
+Jane Eyre. Orpheline. Pauvre. Petite, non belle — de l'aveu même de son miroir. Mais possédant quelque chose que ni la richesse ni la beauté ne peuvent donner : une âme entière, un cœur intact, une volonté de fer.
+
+Et c'est cette Jane-là qui rencontra Mr Rochester par un soir de neige sur un chemin isolé du Yorkshire. Son cheval glissa sur la glace. Elle l'aida à se relever.
+
+Et rien, jamais plus, ne fut comme avant.`},
+
+  {id:9,genre:"romansiya",title:"Roméo et Juliette",author:"William Shakespeare",
+   img:"https://images.unsplash.com/photo-1518050346340-aa2ec3bb424b?w=400&q=80",
+   text:`Deux familles pareilles en dignité, dans la belle Vérone où nous plaçons notre scène, ont renouvelé d'anciennes rancunes pour que le sang des citoyens souille les mains des citoyens.
+
+Roméo Montague avait dix-sept ans lorsqu'il vit Juliette Capulet pour la première fois à travers la salle bondée d'un bal masqué. Il ne connaissait pas son nom. Il ne connaissait pas la haine ancestrale qui les séparait comme un mur de pierre.
+
+Il ne connaissait que ses yeux — deux étoiles capables de guider les navigateurs perdus en mer.
+
+"Qui est cette demoiselle qui enrichit la main de ce chevalier ?" demanda-t-il. Et le destin se referma sur eux deux comme un piège doré.`},
+
+  {id:10,genre:"chi3r",title:"Les Fleurs du Mal",author:"Charles Baudelaire",
+   img:"https://images.unsplash.com/photo-1490730141103-6cac27aaab94?w=400&q=80",
+   text:`Voici un recueil de poèmes qui plongent dans les abysses de l'âme humaine avec une beauté douloureuse et une honnêteté brutale. Baudelaire ouvre la porte de sa conscience et invite le lecteur à contempler le mal non pas pour le célébrer, mais pour le comprendre.
+
+Dans ces vers ciselés comme des bijoux noirs, il explore la mélancolie, le désir impossible, la mort comme délivrance et la beauté comme consolation tragique.
+
+Ce recueil, condamné par les tribunaux de son époque pour offense aux bonnes mœurs, est aujourd'hui reconnu comme l'une des pierres fondatrices de la poésie moderne.
+
+Une cathédrale bâtie sur des ruines, sublime précisément parce que brisée.`},
+
+  {id:11,genre:"chi3r",title:"Le Spleen de Paris",author:"Charles Baudelaire",
+   img:"https://images.unsplash.com/photo-1505682634904-d7c8d95cdc50?w=400&q=80",
+   text:`Paris. La ville qui avale ses enfants et crache des poètes. Baudelaire arpente ses rues grises, ses marchés odoriférants, ses cafés enfumés — et de chaque coin de rue il tire un poème en prose d'une densité rare.
+
+Ces petits textes sont des instantanés de l'âme moderne : la solitude dans la foule, la beauté fugace d'une inconnue croisée au hasard, la cruauté ordinaire du quotidien.
+
+Lire Baudelaire, c'est regarder dans un miroir qui montre non pas ce que vous êtes, mais ce que vous ressentez à trois heures du matin quand tout le monde dort et que vous, vous ne pouvez pas.`},
+
+  {id:12,genre:"chi3r",title:"Alcools",author:"Guillaume Apollinaire",
+   img:"https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&q=80",
+   text:`À la fin tu es las de ce monde ancien. Apollinaire ouvre ce recueil avec une phrase qui résonne comme un gong dans l'obscurité — et il ne s'arrête plus.
+
+Alcools est une rupture radicale. Pas de ponctuation — Apollinaire l'a supprimée des épreuves à la dernière minute, d'un seul geste souverain. Le résultat est une poésie qui coule comme de l'eau vive, ou comme du vin, ou comme le Rhin qu'il contemplait depuis les collines rhénanes.
+
+Le Pont Mirabeau. La Chanson du Mal-Aimé. Zone. Ces poèmes sont des monuments érigés par un homme qui regardait le siècle tourner et choisissait d'en faire de la beauté plutôt que du deuil.`}
+];
+
+/* ── STATE ── */
+let userData = {};
+let selectedGenres = new Set();
+let activeTab = "all";
+
+/* ── NAV ── */
+function go(n){
+  document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
+  document.getElementById('s'+n).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+/* ── STEP 1 ── */
+function submitS1(){
+  const nom=document.getElementById('nom');
+  const pre=document.getElementById('prenom');
+  const eml=document.getElementById('email');
+  const phn=document.getElementById('phone');
+  let ok=true;
+
+  const chk=(fid,inp,test)=>{
+    const f=document.getElementById(fid);
+    if(!test){f.classList.add('show-err');inp.classList.add('err-input');ok=false;}
+    else{f.classList.remove('show-err');inp.classList.remove('err-input');}
+  };
+
+  chk('f-nom',   nom, nom.value.trim()!=='');
+  chk('f-prenom',pre, pre.value.trim()!=='');
+  chk('f-email', eml, /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(eml.value.trim()));
+  chk('f-phone', phn, phn.value.replace(/\D/g,'').length>=8);
+
+  if(!ok)return;
+  userData={nom:nom.value.trim(),prenom:pre.value.trim(),email:eml.value.trim(),phone:phn.value.trim()};
+  go(2);
+}
+
+/* ── STEP 2 ── */
+function toggleG(card){
+  const g=card.dataset.g;
+  if(selectedGenres.has(g)){selectedGenres.delete(g);card.classList.remove('sel');}
+  else{selectedGenres.add(g);card.classList.add('sel');}
+}
+
+function submitS2(){
+  const err=document.getElementById('genreErr');
+  if(selectedGenres.size===0){err.style.display='block';return;}
+  err.style.display='none';
+  buildLibrary();
+  go(3);
+}
+
+/* ── STEP 3 ── */
+const LABELS={fantaziya:"✦ Fantaisie",ro3b:"☽ Horreur",romansiya:"♥ Romance",chi3r:"✿ Poésie"};
+
+function buildLibrary(){
+  document.getElementById('welcomeMsg').textContent=
+    `Bonjour ${userData.prenom} ${userData.nom} — voici votre sélection personnalisée`;
+  const tabsEl=document.getElementById('tabsEl');
+  tabsEl.innerHTML='';
+  activeTab='all';
+  const allBtn=document.createElement('button');
+  allBtn.className='tab on';allBtn.textContent='Tous';
+  allBtn.onclick=()=>setTab('all',allBtn);
+  tabsEl.appendChild(allBtn);
+  selectedGenres.forEach(g=>{
+    const btn=document.createElement('button');
+    btn.className='tab';btn.textContent=LABELS[g]||g;
+    btn.onclick=()=>setTab(g,btn);
+    tabsEl.appendChild(btn);
+  });
+  renderBooks();
+}
+
+function setTab(g,btn){
+  activeTab=g;
+  document.getElementById('searchInput').value='';
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  btn.classList.add('on');
+  renderBooks();
+}
+
+function filterBooks(){renderBooks();}
+
+function renderBooks(){
+  const q=document.getElementById('searchInput').value.trim().toLowerCase();
+  const grid=document.getElementById('booksGrid');
+  grid.innerHTML='';
+  const list=BOOKS.filter(b=>{
+    const gm=activeTab==='all'?selectedGenres.has(b.genre):b.genre===activeTab;
+    const sm=!q||b.title.toLowerCase().includes(q)||b.author.toLowerCase().includes(q);
+    return gm&&sm;
+  });
+  if(!list.length){
+    grid.innerHTML='<div class="no-results">Aucun livre trouvé pour cette recherche…</div>';
+    return;
+  }
+  list.forEach(b=>{
+    const d=document.createElement('div');
+    d.className='bcard';
+    d.innerHTML=`
+      <div class="bcover">
+        <img src="${b.img}" alt="${b.title}" loading="lazy"/>
+        <div class="bcover-overlay"></div>
+        <span class="bbadge bbadge-${b.genre}">${LABELS[b.genre]}</span>
+        <div class="bactions">
+          <button class="btn-read" onclick="openModal(${b.id})">Lire</button>
+          <button class="btn-dl"   onclick="dlBook(${b.id})">⬇ DL</button>
+        </div>
+      </div>
+      <div class="bbody">
+        <div class="btitle">${b.title}</div>
+        <div class="bauthor">${b.author}</div>
+      </div>`;
+    grid.appendChild(d);
+  });
+}
+
+/* ── MODAL ── */
+let curBook=null;
+function openModal(id){
+  curBook=BOOKS.find(b=>b.id===id);if(!curBook)return;
+  document.getElementById('mTitle').textContent=curBook.title;
+  document.getElementById('mAuthor').textContent=curBook.author;
+  document.getElementById('mBody').innerHTML=
+    curBook.text.split(/\n\n+/).map(p=>`<p>${p}</p>`).join('');
+  document.getElementById('mDlBtn').onclick=()=>dlBook(id);
+  document.getElementById('modalBg').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeModal(){
+  document.getElementById('modalBg').classList.remove('open');
+  document.body.style.overflow='';curBook=null;
+}
+function bgClose(e){if(e.target===document.getElementById('modalBg'))closeModal();}
+
+/* ── DOWNLOAD ── */
+function dlBook(id){
+  const b=BOOKS.find(x=>x.id===id);if(!b)return;
+  const txt=`${b.title}\n${'═'.repeat(b.title.length)}\nAuteur : ${b.author}\n\n${b.text}\n\n─────────────────────\nBibliothèque Royale — Téléchargé par ${userData.prenom||'Lecteur'} ${userData.nom||''}`;
+  const blob=new Blob([txt],{type:'text/plain;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=Object.assign(document.createElement('a'),{href:url,download:b.title.replace(/\s+/g,'_')+'.txt'});
+  document.body.appendChild(a);a.click();
+  setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},500);
+}
+
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+</script>
+</body>
+</html>
